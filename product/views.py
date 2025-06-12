@@ -70,3 +70,84 @@ def products_with_reviews_view(request):
 
     return Response(data)
 
+@api_view(['POST'])
+def category_create_view(request):
+    serializer = CategorySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['PUT', 'DELETE'])
+def category_update_delete_view(request, id):
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return Response({'error': 'Category not found'}, status=404)
+
+    if request.method == 'PUT':
+        serializer = CategorySerializer(instance=category, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        category.delete()
+        return Response(status=204)
+
+
+@api_view(['POST'])
+def product_create_view(request):
+    serializer = ProductSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['PUT', 'DELETE'])
+def product_update_delete_view(request, id):
+    try:
+        product = Product.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=404)
+
+    if request.method == 'PUT':
+        serializer = ProductSerializer(instance=product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        product.delete()
+        return Response(status=204)
+
+
+@api_view(['POST'])
+def review_create_view(request):
+    serializer = ReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['PUT', 'DELETE'])
+def review_update_delete_view(request, id):
+    try:
+        review = Review.objects.get(id=id)
+    except Review.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=404)
+
+    if request.method == 'PUT':
+        serializer = ReviewSerializer(instance=review, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        review.delete()
+        return Response(status=204)
+
+
