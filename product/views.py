@@ -4,6 +4,11 @@ from rest_framework import status
 from .models import Category, Product, Review
 from .serializers import CategorySerializer, ProductSerializer, ReviewSerializer
 from django.db.models import Avg
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from .serializers import RegisterSerializer, ConfirmSerializer
+from django.contrib.auth import get_user_model
+
 @api_view(['GET'])
 def category_list_view(request):
     categories = Category.objects.all()
@@ -150,4 +155,33 @@ def review_update_delete_view(request, id):
         review.delete()
         return Response(status=204)
 
+User = get_user_model()
 
+@api_view(['POST'])
+def register_view(request):
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response({'message': 'Пользователь зарегистрирован. Подтвердите код.'}, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+def confirm_user_view(request):
+    serializer = ConfirmSerializer(data=request.data)
+    if serializer.is_valid():
+        return Response({'message': 'Пользователь подтвержден.'})
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+def login_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
+        return Response({'error': 'Пользователь не активен. Подтвердите код.'}, status=403)
+    return Response({'error': 'Неверные учетные данные.'}, status=400)

@@ -1,4 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+import random
+
+
+class User(AbstractUser):
+    is_active = models.BooleanField(default=False)  # Сначала неактивен
+    confirmation_code = models.CharField(max_length=6, blank=True, null=True, unique=True)
+
+    def generate_confirmation_code(self):
+        self.confirmation_code = f'{random.randint(100000, 999999)}'
+        self.save()
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
